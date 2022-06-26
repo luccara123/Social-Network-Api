@@ -83,6 +83,41 @@ const thoughtController = {
             })
             .catch(err => res.status(400).json(err));
     },
+    
+    // Add reaction
+    addReaction({params, body}, res) {
+        Thought.findOneAndUpdate(
+             {_id: params.thoughtId},
+             {$push: {reactions: body}}, 
+             {new: true, runValidators: true})
+        .populate({path: 'reactions', select: '-__v'})
+        .select('-__v')
+        .then(response => {
+        if (!response) {
+            res.status(404).json({message: 'Unable to find a thought with this ID!'});
+            return;
+        }
+        res.json(response);
+        })
+        .catch(err => res.status(400).json(err))
+
+    },
+
+    // Delete reaction
+    deleteReaction({params}, res) {
+        Thought.findOneAndUpdate(
+            {_id: params.thoughtId},
+            {$pull: {reactions: {reactionId: params.reactionId}}},
+            {new : true})
+        .then(response => {
+            if (!response) {
+                res.status(404).json({message: 'Unable to find a thought with this ID!'});
+                return;
+            }
+            res.json(response);
+        })
+        .catch(err => res.status(400).json(err));
+    }
 };
 
 module.exports = thoughtController;
