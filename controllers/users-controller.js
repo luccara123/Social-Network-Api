@@ -73,7 +73,41 @@ const userController = {
         .catch((err) => res.status(400).json(err));
     },
 
+    // Add friend
+    addFriend({params}, res) {
+        User.findOneAndUpdate(
+            {_id: params.id},
+            {$push: { friends: params.friendId}},
+            {new: true})
+        .populate({path: 'friends', select: ('-__v')})
+        .select('-__v')
+        .then(response => {
+            if (!response) {
+                res.status(404).json({message: 'Unable to find a user with this ID'});
+                return;
+            }
+        res.json(response);
+        })
+        .catch(err => res.json(err));
+    },
 
+    // Delete a current Friend
+    deleteFriend({ params }, res) {
+        User.findOneAndUpdate(
+            {_id: params.id},
+            {$pull: { friends: params.friendId}},
+            {new: true})
+        .populate({path: 'friends', select: '-__v'})
+        .select('-__v')
+        .then(response => {
+            if(!response) {
+                res.status(404).json({message: 'Unable to find a user with this ID'});
+                return;
+            }
+            res.json(response);
+        })
+        .catch(err => res.status(400).json(err));
+    }
 };
 
 module.exports = userController;
