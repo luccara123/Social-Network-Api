@@ -79,8 +79,6 @@ const userController = {
             {_id: params.id},
             {$push: { friends: params.friendId}},
             {new: true})
-        .populate({path: 'friends', select: ('-__v')})
-        .select('-__v')
         .then(response => {
             if (!response) {
                 res.status(404).json({message: 'Unable to find a user with this ID'});
